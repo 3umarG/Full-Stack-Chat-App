@@ -1,10 +1,11 @@
 package com.chat.api.controller;
 
 import com.chat.api.DTOs.MessageDto;
+import com.chat.api.redis.RedisPublisher;
+import com.chat.api.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -13,10 +14,11 @@ import org.springframework.stereotype.Controller;
 public class MessagingController {
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final RedisPublisher publisher;
 
     @MessageMapping("/public-message") // /app/public-message
-    @SendTo("/chatroom/messages") // this will be the destination of the public topic
     public MessageDto sendPublicMessage(@Payload MessageDto message) {
+        publisher.publish(Constants.REDIS_CHANNEL_NAME, message);
         return message;
     }
 
